@@ -1,5 +1,6 @@
 from tkinter import*
-import time 
+import time
+import random
 
 
 # Déclaration variable pour rendre le programme adaptatif
@@ -15,8 +16,6 @@ def settings_func(root, default_settings):
     settings_window.grab_set()
     settings_window.grab_release()
 
-    ##fait ce que tu veux
-
     index = 0
 
     a = Entry(settings_window)
@@ -31,14 +30,31 @@ def settings_func(root, default_settings):
     b.insert(0, default_settings[index])
     index += 1
 
+    c = Entry(settings_window)
+    c.pack()
+    c.delete(0, END)
+    c.insert(0, default_settings[index])
+    index += 1
+
+    d = Entry(settings_window)
+    d.pack()
+    d.delete(0, END)
+    d.insert(0, default_settings[index])
+    index += 1
+
+    e = Entry(settings_window)
+    e.pack()
+    e.delete(0, END)
+    e.insert(0, default_settings[index])
+
     def quit_settings():
         global settings
-        settings = [ a.get(), b.get() ] 
+        settings = [ a.get(), b.get(), c.get(), d.get(), e.get()] 
         settings_window.destroy()
         
 
-    c = Button(settings_window, text="Quitter", command=quit_settings)
-    c.pack()
+    btn_settings = Button(settings_window, text="Quitter", command=quit_settings)
+    btn_settings.pack()
 
 
 # Création menu
@@ -59,17 +75,20 @@ def play_func(root, settings):
         has_moved = Entry(jeu)
         has_moved.pack()
         has_moved.insert(0, "False")
+        ScoreG = []
+        ScoreD = []
 
         def ball_move(x, y):
-            ScoreGauche = 0
-            ScoreDroite = 0
             test = True
+            rdm_x = [x, -x]
+            rdm_y = [y, -y]
             if has_moved.get() == "True":
+                x = random.choice(rdm_x)
+                y = random.choice(rdm_y)
                 while test:
                     canvas.move(ball, x, y)
                     time.sleep(0.025)
                     jeu.update()
-                    
                     posraq1 = canvas.coords(raq1)
                     posraq2 = canvas.coords(raq2)
                     pos = canvas.coords(ball)
@@ -81,7 +100,12 @@ def play_func(root, settings):
                     if pos[0] > largeur:
                         test = False
                         ScoreGauche += 1
-                        quitter()
+                        print(ScoreGauche)
+                        if ScoreGauche == int(settings[0]):
+                            quitter()
+                        else:
+                            jeu.destroy()
+                            play_func(root, settings)
                     if pos[2] < 0:
                         test = False
                         ScoreDroite += 1
@@ -129,6 +153,8 @@ def play_func(root, settings):
         jeu.bind('<Down>', raq2_move_down)
 
         def init():
+            ScoreGauche = 0
+            ScoreDroite = 0
             ball_move(10, 10)
 
         def quitter():
@@ -140,7 +166,7 @@ def play_func(root, settings):
 
 root = Tk()
 
-settings = ["par defaut", "lol pierre est nul" ]
+settings = ["5", "10", "white", "white", "black" ]
 
 def play_game():
     play_func(root, settings)
