@@ -18,44 +18,25 @@ def settings_func(root, default_settings):
 
     index = 0
 
-    a = Entry(settings_window)
-    a.pack()
-    a.delete(0, END)
-    a.insert(0, default_settings[index])
-    index += 1
+    entries = [Entry(settings_window) for x in default_settings]
 
-    b = Entry(settings_window)
-    b.pack()
-    b.delete(0, END)
-    b.insert(0, default_settings[index])
-    index += 1
-
-    c = Entry(settings_window)
-    c.pack()
-    c.delete(0, END)
-    c.insert(0, default_settings[index])
-    index += 1
-
-    d = Entry(settings_window)
-    d.pack()
-    d.delete(0, END)
-    d.insert(0, default_settings[index])
-    index += 1
-
-    e = Entry(settings_window)
-    e.pack()
-    e.delete(0, END)
-    e.insert(0, default_settings[index])
+    for entry in entries:
+        entry.pack()
+        entry.delete(0, END)
+        entry.insert(0, default_settings[index])
+        index += 1
 
     def quit_settings():
         global settings
-        settings = [ a.get(), b.get(), c.get(), d.get(), e.get()] 
+        settings = [ entry.get() for entry in entries] 
         settings_window.destroy()
         
 
     btn_settings = Button(settings_window, text="Quitter", command=quit_settings)
     btn_settings.pack()
 
+ScoreGauche = 0
+ScoreDroite = 0
 
 # Création menu
 def play_func(root, settings):
@@ -75,10 +56,11 @@ def play_func(root, settings):
         has_moved = Entry(jeu)
         has_moved.pack()
         has_moved.insert(0, "False")
-        ScoreG = []
-        ScoreD = []
+       
 
-        def ball_move(x, y):
+        def ball_move(x, y, settings):
+            global ScoreGauche, ScoreDroite
+
             test = True
             rdm_x = [x, -x]
             rdm_y = [y, -y]
@@ -113,7 +95,7 @@ def play_func(root, settings):
             else:
                 time.sleep(0.025)
                 jeu.update()
-                ball_move(x, y)
+                ball_move(x, y, settings)
 
 # Déplacement raquette gauche
 
@@ -155,7 +137,7 @@ def play_func(root, settings):
         def init():
             ScoreGauche = 0
             ScoreDroite = 0
-            ball_move(10, 10)
+            ball_move(10, 10, settings)
 
         def quitter():
             jeu.destroy()
