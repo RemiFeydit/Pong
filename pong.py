@@ -14,6 +14,7 @@ ScoreDroite = 0
 
 def settings_func(root, default_settings):
     settings_window = Toplevel(root)
+    settings_window.title("Opts")
     settings_window.lift()
     settings_window.focus_force()
     settings_window.grab_set()
@@ -47,6 +48,7 @@ def settings_func(root, default_settings):
 
 def play_func(root, settings):
     jeu = Toplevel(root)
+    jeu.title("Jeu")
     jeu.lift()
     jeu.focus_force()
     jeu.grab_set()
@@ -154,6 +156,7 @@ def end_game():
     global ScoreGauche, ScoreDroite, debut
     fin = time()
     end_game = Toplevel(root)
+    end_game.title("Fin")
     end_game.lift()
     end_game.focus_force()
     end_game.grab_set()
@@ -202,6 +205,7 @@ def end_game():
 
 
 root = Tk()
+root.title("Menu")
 
 settings = ["5", "10", "white", "white", "black"]
 
