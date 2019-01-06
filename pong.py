@@ -1,6 +1,6 @@
-from tkinter import*
-import time
-import random
+from tkinter import Button, Canvas, CENTER, END, Entry, Grid, Label, Text, Tk, Toplevel
+from time import time, sleep
+from random import choice
 
 
 # Déclaration variable pour rendre le programme adaptatif
@@ -8,6 +8,8 @@ import random
 largeur = 800
 hauteur = 600
 speed_mov_raq = hauteur * 0.1
+ScoreGauche = 0
+ScoreDroite = 0
 
 
 def settings_func(root, default_settings):
@@ -20,8 +22,12 @@ def settings_func(root, default_settings):
     index = 0
 
     entries = [Entry(settings_window) for x in default_settings]
+    texte = ['Nombre point gagnants', "Vitesse balle (en pixels)", "Couleur balle (en anglais)",
+             "Couleurs raquettes (en anglais)", "Couleur fond (en anglais)"]
 
     for entry in entries:
+        test = Label(settings_window, text=texte[index])
+        test.pack()
         entry.pack()
         entry.delete(0, END)
         entry.insert(0, default_settings[index])
@@ -35,10 +41,6 @@ def settings_func(root, default_settings):
     btn_settings = Button(settings_window, text="Quitter",
                           command=quit_settings)
     btn_settings.pack()
-
-
-ScoreGauche = 0
-ScoreDroite = 0
 
 # Création menu
 
@@ -60,21 +62,19 @@ def play_func(root, settings):
         largeur - 10, hauteur/2 - hauteur*0.1, largeur - 20, hauteur/2 + hauteur*0.1, fill=settings[3])
 
     has_moved = Entry(jeu)
-    has_moved.pack()
     has_moved.insert(0, "False")
 
     def ball_move(x, y, settings):
         global ScoreGauche, ScoreDroite
-
         test = True
         rdm_x = [x, -x]
         rdm_y = [y, -y]
         if has_moved.get() == "True":
-            x = random.choice(rdm_x)
-            y = random.choice(rdm_y)
+            x = choice(rdm_x)
+            y = choice(rdm_y)
             while test:
                 canvas.move(ball, x, y)
-                time.sleep(0.025)
+                sleep(0.025)
                 jeu.update()
                 posraq1 = canvas.coords(raq1)
                 posraq2 = canvas.coords(raq2)
@@ -88,8 +88,8 @@ def play_func(root, settings):
                     test = False
                     ScoreGauche += 1
                     if ScoreGauche == int(settings[0]):
-                        ScoreGauche = 0
-                        quitter()
+                        jeu.destroy()
+                        end_game()
                     else:
                         jeu.destroy()
                         play_func(root, settings)
@@ -97,13 +97,14 @@ def play_func(root, settings):
                     test = False
                     ScoreDroite += 1
                     if ScoreDroite == int(settings[0]):
-                        ScoreGauche = 0
-                        quitter()
+                        jeu.destroy()
+                        fin = time()
+                        end_game()
                     else:
                         jeu.destroy()
                         play_func(root, settings)
         else:
-            time.sleep(0.025)
+            sleep(0.025)
             jeu.update()
             ball_move(x, y, settings)
 
@@ -144,15 +145,59 @@ def play_func(root, settings):
     jeu.bind('<Down>', raq2_move_down)
 
     def init():
-        ScoreGauche = 0
-        ScoreDroite = 0
-        ball_move(10, 10, settings)
-
-    def quitter():
-        jeu.destroy()
+        ball_move(int(settings[1]), int(settings[1]), settings)
 
     init()
 
+
+def end_game():
+    global ScoreGauche, ScoreDroite, debut
+    fin = time()
+    end_game = Toplevel(root)
+    end_game.lift()
+    end_game.focus_force()
+    end_game.grab_set()
+    end_game.grab_release()
+    text_ScoreG = Label(end_game, text="Score du joueur de gauche")
+    text_ScoreD = Label(end_game, text="Score du joueur de droite")
+    text_time = Label(end_game, text="Durée de la partie")
+    GameDuration = Label(end_game,  justify='center',
+                         text=str(int(fin - debut)) + " secondes")
+    if ScoreGauche == int(settings[0]):
+        ScoreG = Label(end_game, justify='center',
+                       text=str(ScoreGauche) + " " + "(gagnant)")
+    else:
+        ScoreG = Label(end_game, justify='center', text=ScoreGauche)
+    if ScoreDroite == int(settings[0]):
+        ScoreD = Label(end_game, justify='center',
+                       text=str(ScoreDroite) + " " + "(gagnant)")
+    else:
+        ScoreD = Label(end_game, justify='center', text=ScoreDroite)
+    text_ScoreG.pack()
+    ScoreG.pack()
+    text_ScoreD.pack()
+    ScoreD.pack()
+    text_time.pack()
+    GameDuration.pack()
+
+    def quit_game():
+        global ScoreDroite, ScoreGauche
+        root.destroy()
+
+    def regame():
+        global ScoreDroite, ScoreGauche
+        ScoreGauche = 0
+        ScoreDroite = 0
+        end_game.destroy()
+        play_game()
+
+    btn_regame = Button(end_game, text="Rejouer ?", command=regame)
+    btn_change_opt = Button(
+        end_game, text="Changer options ?", command=end_game.destroy)
+    btn_end_game = Button(end_game, text="Quitter", command=quit_game)
+    btn_regame.pack()
+    btn_change_opt.pack()
+    btn_end_game.pack()
 # play()
 
 
@@ -162,13 +207,17 @@ settings = ["5", "10", "white", "white", "black"]
 
 
 def play_game():
+    global ScoreGauche, ScoreDroite, debut
+    debut = time()
+    print(debut)
+    ScoreGauche = 0
+    ScoreDroite = 0
     play_func(root, settings)
 
 
 def show_settings():
     global settings
     settings = settings_func(root, settings)
-    print(settings)
 
 
 play_button = Button(root, text="Jouer", command=play_game)
